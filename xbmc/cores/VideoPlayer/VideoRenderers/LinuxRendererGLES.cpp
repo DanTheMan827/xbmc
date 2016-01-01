@@ -1685,6 +1685,26 @@ bool CLinuxRendererGLES::Supports(ESCALINGMETHOD method)
   return false;
 }
 
+EINTERLACEMETHOD CLinuxRendererGLES::AutoInterlaceMethod()
+{
+  // Player controls render, let it pick the auto-deinterlace method
+  if((m_renderMethod & RENDER_BYPASS))
+  {
+    if (!m_deinterlaceMethods.empty())
+      return ((EINTERLACEMETHOD)m_deinterlaceMethods[0]);
+    else
+      return VS_INTERLACEMETHOD_NONE;
+  }
+
+#if !defined(TARGET_ANDROID) && (defined(__i386__) || defined(__x86_64__))
+  return VS_INTERLACEMETHOD_DEINTERLACE_HALF;
+#elif defined(TARGET_DARWIN_TVOS)
+  return VS_INTERLACEMETHOD_RENDER_BOB_INVERTED;
+#else
+  return VS_INTERLACEMETHOD_RENDER_BOB;
+#endif
+}
+
 CRenderInfo CLinuxRendererGLES::GetRenderInfo()
 {
   CRenderInfo info;
